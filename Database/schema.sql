@@ -1,13 +1,13 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    signing_public_key TEXT NOT NULL,
-    encryption_public_key TEXT NOT NULL,
+    signing_public_key TEXT UNIQUE NOT NULL,
+    encryption_public_key TEXT UNIQUE NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE public_messages (
+CREATE TABLE IF NOT EXISTS public_messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,              
     content TEXT NOT NULL,          
@@ -16,7 +16,7 @@ CREATE TABLE public_messages (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE private_messages (
+CREATE TABLE IF NOT EXISTS private_messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     from_user_id INTEGER NOT NULL,
     to_user_id INTEGER NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE private_messages (
     FOREIGN KEY (to_user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     id TEXT PRIMARY KEY,              
     user_id INTEGER NOT NULL,         
     expires_at DATETIME NOT NULL,     
@@ -37,7 +37,7 @@ CREATE TABLE sessions (
 );
 
 
-CREATE TABLE groups (
+CREATE TABLE IF NOT EXISTS groups (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     group_name TEXT NOT NULL,
     created_by INTEGER NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE groups (
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE group_members (
+CREATE TABLE IF NOT EXISTS group_members (
     group_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     encrypted_group_key TEXT NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE group_members (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE group_messages (
+CREATE TABLE IF NOT EXISTS group_messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     group_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
