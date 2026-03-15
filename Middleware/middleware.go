@@ -11,7 +11,7 @@ import (
 
 type contextKey string
 
-const userIdKey contextKey = "user_id"
+const UserIdKey contextKey = "user_id"
 
 type errorResponse struct {
 	Error string `json:"error"`
@@ -21,7 +21,7 @@ func Auth(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		authHeader := r.Header.Get("Authorisation")
+		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(errorResponse{Error: "Missing authorisation header"})
@@ -74,7 +74,7 @@ func Auth(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), userIdKey, userId)
+		ctx := context.WithValue(r.Context(), UserIdKey, userId)
 		next.ServeHTTP(w, r.WithContext(ctx))
 
 	}
