@@ -18,6 +18,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("database init failed: %v", err)
 	}
+
 	defer db.Close()
 
 	log.Println("✓ Database initialized and migrated")
