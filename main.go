@@ -12,6 +12,7 @@ import (
 
 	database "MessageBoard/Database"
 	handlers "MessageBoard/Handlers"
+	middleware "MessageBoard/Middleware"
 )
 
 func main() {
@@ -29,8 +30,9 @@ func main() {
 		w.Header().Set("Content-Type", "text/plain")
 		fmt.Fprintf(w, "Message board API running")
 	})
-	mux.HandleFunc("Post /register", handlers.Register(db))
-	mux.HandleFunc("Post /login", handlers.Login(db))
+	mux.HandleFunc("POST /register", handlers.Register(db))
+	mux.HandleFunc("POST /login", handlers.Login(db))
+	mux.HandleFunc("POST /logout", middleware.Auth(db, handlers.Logout(db)))
 
 	srv := &http.Server{
 		Addr:         ":8080",
