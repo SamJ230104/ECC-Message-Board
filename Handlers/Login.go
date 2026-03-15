@@ -17,10 +17,10 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Message string `json:"message"`
-	Token   string `json:"token"`
-	Expiry  string `json:"expiry"`
-	UserId  int64  `json:"user_id"`
+	Message   string `json:"message"`
+	Token     string `json:"token"`
+	ExpiresAt string `json:"expires_at"`
+	UserId    int64  `json:"user_id"`
 }
 
 func Login(db *sql.DB) http.HandlerFunc {
@@ -72,12 +72,12 @@ func Login(db *sql.DB) http.HandlerFunc {
 		}
 		token := hex.EncodeToString(tokenBytes)
 
-		expiry := time.Now().UTC().Add(24 * time.Hour).Format(time.RFC3339)
+		expiresAt := time.Now().UTC().Add(24 * time.Hour).Format(time.RFC3339)
 
 		_, err = db.Exec(`
-			INSERT INTO user_sessions (id, user_id, expiry)
+			INSERT INTO user_sessions (id, user_id, expires_at)
 			VALUES(?, ?, ?)
-			`, token, userId, expiry)
+			`, token, userId, expiresAt)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(ErrorResponse{Error: "Failed to create session"})
@@ -86,10 +86,10 @@ func Login(db *sql.DB) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(LoginResponse{
-			Message: "Login Successful",
-			Token:   token,
-			Expiry:  expiry,
-			UserId:  userId,
+			Message:   "Login Successful",
+			Token:     token,
+			ExpiresAt: expiresAt,
+			UserId:    userId,
 		})
 	}
 }

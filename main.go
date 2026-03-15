@@ -11,6 +11,7 @@ import (
 	"time"
 
 	database "MessageBoard/Database"
+	handlers "MessageBoard/Handlers"
 )
 
 func main() {
@@ -28,6 +29,8 @@ func main() {
 		w.Header().Set("Content-Type", "text/plain")
 		fmt.Fprintf(w, "Message board API running")
 	})
+	mux.HandleFunc("Post /register", handlers.Register(db))
+	mux.HandleFunc("Post /login", handlers.Login(db))
 
 	srv := &http.Server{
 		Addr:         ":8080",
