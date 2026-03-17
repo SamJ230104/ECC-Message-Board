@@ -39,8 +39,8 @@ func main() {
 	mux.HandleFunc("POST /messages/public", middleware.Auth(db, handlers.PostPublicMessage(db)))
 	mux.HandleFunc("GET /messages/public", middleware.Auth(db, handlers.GetPublicMessages(db)))
 	mux.HandleFunc("POST /messages/private", middleware.Auth(db, handlers.SendPrivateMessage(db)))
-	mux.HandleFunc("GET /messages/private", middleware.Auth(db, handlers.SendPrivateMessage(db)))
-	mux.HandleFunc("GET /message/private/{username}", middleware.Auth(db, handlers.GetConversation(db)))
+	mux.HandleFunc("GET /messages/private", middleware.Auth(db, handlers.GetInbox(db)))
+	mux.HandleFunc("GET /messages/private/{username}", middleware.Auth(db, handlers.GetConversation(db)))
 	mux.HandleFunc("PATCH /messages/private/{id}/read", middleware.Auth(db, handlers.MarkMessageRead(db)))
 
 	srv := &http.Server{
