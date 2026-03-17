@@ -26,13 +26,22 @@ func main() {
 	log.Println("✓ Database initialized and migrated")
 
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		fmt.Fprintf(w, "Message board API running")
 	})
 	mux.HandleFunc("POST /register", handlers.Register(db))
 	mux.HandleFunc("POST /login", handlers.Login(db))
+
 	mux.HandleFunc("POST /logout", middleware.Auth(db, handlers.Logout(db)))
+	mux.HandleFunc("GET /users/{username}", middleware.Auth(db, handlers.GetUser(db)))
+	mux.HandleFunc("POST /messages/public", middleware.Auth(db, handlers.PostPublicMessage(db)))
+	mux.HandleFunc("GET /messages/public", middleware.Auth(db, handlers.GetPublicMessages(db)))
+	mux.HandleFunc("POST /messages/private", middleware.Auth(db, handlers.SendPrivateMessage(db)))
+	mux.HandleFunc("GET /messages/private", middleware.Auth(db, handlers.SendPrivateMessage(db)))
+	mux.HandleFunc("GET /message/private/{username}", middleware.Auth(db, handlers.GetConversation(db)))
+	mux.HandleFunc("PATCH /messages/private/{id}/read", middleware.Auth(db, handlers.MarkMessageRead(db)))
 
 	srv := &http.Server{
 		Addr:         ":8080",
