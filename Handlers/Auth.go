@@ -70,7 +70,7 @@ func Register(db *sql.DB) http.HandlerFunc {
 		`, req.Username, string(passwordHash), req.SigningPublicKey, req.EncryptionPublicKey)
 
 		if err != nil {
-			if strings.Contains(err.Error(), "Unique constraint failed") {
+			if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 				w.WriteHeader(http.StatusConflict)
 				json.NewEncoder(w).Encode(ErrorResponse{
 					Error: "Username already taken",

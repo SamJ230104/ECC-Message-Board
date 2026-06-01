@@ -89,7 +89,7 @@ func SendPrivateMessage(db *sql.DB) http.HandlerFunc {
 		}
 
 		result, err := db.Exec(`
-		    INSERT INTO private_message (from_user_id, to_user_id, encrypted_content, nonce, ec_signature)
+		    INSERT INTO private_messages (from_user_id, to_user_id, encrypted_content, nonce, ec_signature)
 			VALUES (?, ?, ?, ?, ?)`, fromUserId, toUserId, req.EncryptedContent, req.Nonce, req.EcSignature)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -121,10 +121,10 @@ func GetInbox(db *sql.DB) http.HandlerFunc {
 		    SELECT
 			    pm.id,
 				pm.from_user_id,
-				sender.username
+				sender.username,
 				pm.to_user_id,
 				recipient.username,
-				pm.ecrypted_content
+				pm.encrypted_content,
 				pm.nonce,
 				pm.ec_signature,
 				pm.created_at,
@@ -220,7 +220,7 @@ func GetConversation(db *sql.DB) http.HandlerFunc {
 				pm.read
 			FROM private_messages pm
 			JOIN users sender ON sender.id = pm.from_user_id
-			JOIN users recipient on recipient_id = pm.to_user_id
+			JOIN users recipient ON recipient_id = pm.to_user_id
 			WHERE (pm.from_user_id = ? AND pm.to_user_id = ?)
 			OR (pm.from_user_id = ? AND pm.to_user_id = ?)
 			ORDER BY pm.created_at ASC

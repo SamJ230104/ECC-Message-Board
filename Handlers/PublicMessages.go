@@ -19,7 +19,7 @@ type PublicMessageResponse struct {
 	Username    string `json:"username"`
 	Content     string `json:"content"`
 	EcSignature string `json:"ec_signature"`
-	CreatedAt   string `json:"creared_at"`
+	CreatedAt   string `json:"created_at"`
 }
 
 func PostPublicMessage(db *sql.DB) http.HandlerFunc {

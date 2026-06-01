@@ -66,9 +66,24 @@ func CreateGroup(db *sql.DB) http.HandlerFunc {
 		}
 		defer tx.Rollback()
 
+		// Validate the creator is included in encrypted_keys before inserting anything.
+		var creatorUsername string
+		err = tx.QueryRow(`SELECT username FROM users WHERE id = ?`, userId).Scan(&creatorUsername)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(ErrorResponse{Error: "Failed to get creator info"})
+			return
+		}
+
+		if _, exists := req.EncryptedKeys[creatorUsername]; !exists {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(ErrorResponse{Error: "Creator must be included in encrypted_keys"})
+			return
+		}
+
 		result, err := tx.Exec(`
 			INSERT INTO groups (group_name, created_by)
-			VALLUES (?, ?)
+			VALUES (?, ?)
 			`, req.GroupName, userId)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -109,23 +124,6 @@ func CreateGroup(db *sql.DB) http.HandlerFunc {
 				json.NewEncoder(w).Encode(ErrorResponse{Error: "Failed to add member: " + username})
 				return
 			}
-
-		}
-
-		var creatorUsername string
-		err = tx.QueryRow(`SELECT username FROM users WHERE id = ?`, userId).Scan(&creatorUsername)
-
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(ErrorResponse{Error: "Failed to get creator info"})
-			return
-		}
-
-		if _, exists := req.EncryptedKeys[creatorUsername]; !exists {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResponse{Error: "Created must be included in encrypted_keys"})
-			tx.Rollback()
-			return
 		}
 
 		if err := tx.Commit(); err != nil {
@@ -154,7 +152,6 @@ func GetGroups(db *sql.DB) http.HandlerFunc {
 			WHERE gm.user_id = ?
 			ORDER BY g.created_at DESC
 		`, userId)
-
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(ErrorResponse{Error: "Failed to get groups"})
@@ -181,7 +178,6 @@ func GetGroups(db *sql.DB) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(groups)
-
 	}
 }
 
@@ -194,7 +190,7 @@ func AddGroupMember(db *sql.DB) http.HandlerFunc {
 		groupId := r.PathValue("id")
 		if groupId == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResponse{Error: "Group ID is reqjuired"})
+			json.NewEncoder(w).Encode(ErrorResponse{Error: "Group ID is required"})
 			return
 		}
 
@@ -212,7 +208,7 @@ func AddGroupMember(db *sql.DB) http.HandlerFunc {
 		}
 		if req.EncryptedGroupKey == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResponse{Error: "Enrypted group key is required"})
+			json.NewEncoder(w).Encode(ErrorResponse{Error: "Encrypted group key is required"})
 			return
 		}
 
@@ -261,7 +257,6 @@ func AddGroupMember(db *sql.DB) http.HandlerFunc {
 		json.NewEncoder(w).Encode(map[string]string{
 			"message": "Member added successfully",
 		})
-
 	}
 }
 
@@ -387,6 +382,5 @@ func GetGroupMembers(db *sql.DB) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(members)
-
 	}
 }
