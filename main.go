@@ -43,6 +43,15 @@ func main() {
 	mux.HandleFunc("GET /messages/private/{username}", middleware.Auth(db, handlers.GetConversation(db)))
 	mux.HandleFunc("PATCH /messages/private/{id}/read", middleware.Auth(db, handlers.MarkMessageRead(db)))
 
+	mux.HandleFunc("POST /groups", middleware.Auth(db, handlers.CreateGroup(db)))
+	mux.HandleFunc("GET /groups", middleware.Auth(db, handlers.GetGroups(db)))
+	mux.HandleFunc("GET /groups/{id}/members", middleware.Auth(db, handlers.GetGroupMembers(db)))
+	mux.HandleFunc("POST /groups/{id}/members", middleware.Auth(db, handlers.AddGroupMember(db)))
+	mux.HandleFunc("DELETE /groups/{id}/members/{userId}", middleware.Auth(db, handlers.RemoveGroupMember(db)))
+
+	mux.HandleFunc("POST /groups/{id}/messages", middleware.Auth(db, handlers.PostGroupMessage(db)))
+	mux.HandleFunc("GET /groups/{id}/messages", middleware.Auth(db, handlers.GetGroupMessages(db)))
+
 	srv := &http.Server{
 		Addr:         ":8080",
 		Handler:      mux,
