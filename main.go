@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	database "MessageBoard/Database"
-	handlers "MessageBoard/Handlers"
-	middleware "MessageBoard/Middleware"
+	database "MessageBoard/database"
+	handlers "MessageBoard/handlers"
+	middleware "MessageBoard/middleware"
 )
 
 func main() {

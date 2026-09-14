@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	middleware "MessageBoard/Middleware"
+	"MessageBoard/middleware"
 )
 
 type SendPrivateMessageRequest struct {
@@ -220,7 +220,7 @@ func GetConversation(db *sql.DB) http.HandlerFunc {
 				pm.read
 			FROM private_messages pm
 			JOIN users sender ON sender.id = pm.from_user_id
-			JOIN users recipient ON recipient_id = pm.to_user_id
+			JOIN users recipient ON recipient.id = pm.to_user_id
 			WHERE (pm.from_user_id = ? AND pm.to_user_id = ?)
 			OR (pm.from_user_id = ? AND pm.to_user_id = ?)
 			ORDER BY pm.created_at ASC

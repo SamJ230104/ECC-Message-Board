@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	middleware "MessageBoard/Middleware"
+	"MessageBoard/middleware"
 )
 
 type CreateGroupRequest struct {

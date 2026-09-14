@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	middleware "MessageBoard/Middleware"
+	"MessageBoard/middleware"
 )
 
 type PostGroupMessageRequest struct {

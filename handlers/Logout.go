@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	middleware "MessageBoard/Middleware"
+	"MessageBoard/middleware"
 	"database/sql"
 	"encoding/json"
 	"net/http"

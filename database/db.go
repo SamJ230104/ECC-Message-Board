@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -13,7 +14,14 @@ func InitDB(path string) (*sql.DB, error) {
 		path = "./messageboard.db"
 	}
 
-	db, err := sql.Open("sqlite3", path)
+	dsn := path + "?" + strings.Join([]string{
+		"_foreign_keys=on",
+		"_busy_timeout=5000",
+		"_journal_mode=WAL",
+		"_synchronous=NORMAL",
+	}, "&")
+
+	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("sql.Open: %w", err)
 	}
@@ -27,20 +35,7 @@ func InitDB(path string) (*sql.DB, error) {
 		return nil, fmt.Errorf("ping: %w", err)
 	}
 
-	pragmas := []string{
-		"PRAGMA journal_mode = WAL;",
-		"PRAGMA synchronous = NORMAL;",
-		"PRAGMA busy_timeout = 5000;",
-	}
-
-	for _, p := range pragmas {
-		if _, err := db.Exec(p); err != nil {
-			db.Close()
-			return nil, fmt.Errorf("failed to set pragma %q: %w", p, err)
-		}
-	}
-
-	if err := ApplyMigrations(db, "./database/migrations"); err != nil {
+	if err := ApplyMigrations(db, "./Database/migrations"); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("migrations: %w", err)
 	}
